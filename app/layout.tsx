@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import { CustomCursor } from "@/components/ui/CustomCursor";
@@ -18,9 +18,55 @@ const inter = Inter({
   display: "swap",
 });
 
+const DESCRIPTION =
+  "Turn your real life into an RPG progression system — complete real tasks, earn XP and gold, level up your attributes, and gear out your hero in the shop.";
+
 export const metadata: Metadata = {
-  title: "Life RPG",
-  description: "Turn your real life into an RPG progression system.",
+  // Falls back to localhost in dev; set NEXT_PUBLIC_SITE_URL in your
+  // deployment environment so absolute URLs (Open Graph images,
+  // canonical links) resolve to the real production domain.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  title: {
+    default: "Life RPG",
+    template: "%s · Life RPG",
+  },
+  description: DESCRIPTION,
+  keywords: [
+    "life rpg",
+    "productivity",
+    "gamification",
+    "habit tracker",
+    "task manager",
+    "xp system",
+    "leveling up",
+  ],
+  applicationName: "Life RPG",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
+  openGraph: {
+    title: "Life RPG",
+    description: DESCRIPTION,
+    siteName: "Life RPG",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+    title: "Life RPG",
+    description: DESCRIPTION,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#05050a",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

@@ -1,26 +1,43 @@
 import { getLevelProgress } from "@/lib/game/leveling";
+import { auraGradientClass } from "@/lib/game/aura";
 
 type HeroCardProps = {
   username: string;
   level: number;
   currentXp: number;
+  /** Name of the equipped `title`-type shop item, if any. */
+  equippedTitle?: string | null;
+  /** Name of the equipped `aura`-type shop item, if any. */
+  equippedAura?: string | null;
 };
 
-export function HeroCard({ username, level, currentXp }: HeroCardProps) {
+export function HeroCard({
+  username,
+  level,
+  currentXp,
+  equippedTitle,
+  equippedAura,
+}: HeroCardProps) {
   const { xpToNext, progress } = getLevelProgress(level, currentXp);
   const initial = username.trim().charAt(0).toUpperCase() || "?";
+  const auraClass = auraGradientClass(equippedAura);
 
   return (
     <div className="glass glow-edge rounded-bento-lg p-6 md:p-8 h-full flex flex-col justify-between min-h-[220px]">
       <div className="flex items-center gap-4">
         <div
           aria-hidden
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-xp-glow font-display text-xl font-semibold text-space-950 shadow-[0_0_24px_0_rgba(139,92,246,0.35),0_0_0_3px_rgba(255,255,255,0.06),5px_5px_12px_rgba(0,0,0,0.5)]"
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${auraClass} font-display text-xl font-semibold text-space-950 shadow-[0_0_24px_0_rgba(139,92,246,0.35),0_0_0_3px_rgba(255,255,255,0.06),5px_5px_12px_rgba(0,0,0,0.5)] transition-[background-image,background-color] duration-300`}
         >
           {initial}
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm text-zinc-400">{username}</p>
+          {equippedTitle && (
+            <p className="truncate text-xs font-medium text-xp-cyan">
+              {equippedTitle}
+            </p>
+          )}
           <div className="flex items-baseline gap-2">
             <span className="font-display text-5xl font-semibold leading-none text-zinc-50 md:text-6xl">
               {level}

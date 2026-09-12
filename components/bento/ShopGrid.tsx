@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Coins, Loader2 } from "lucide-react";
-import { purchaseItem } from "@/app/actions/tasks";
+import { equipItem, purchaseItem } from "@/app/actions/tasks";
 import { ErrorToast } from "@/components/ui/ErrorToast";
 import { itemTypeIcon } from "@/lib/game/item-icons";
 import type { ShopItem } from "@/lib/game/types";
@@ -12,15 +12,30 @@ type ShopGridProps = {
   initialGold: number;
   items: ShopItem[];
   initialOwnedIds: string[];
+  initialEquippedTitle: string | null;
+  initialEquippedAura: string | null;
 };
 
 const TOAST_DURATION_MS = 5000;
 
-export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps) {
+/** Item types that have a slot on the profile and can be equipped. */
+function isEquippable(type: string): type is "title" | "aura" {
+  return type === "title" || type === "aura";
+}
+
+export function ShopGrid({
+  initialGold,
+  items,
+  initialOwnedIds,
+  initialEquippedTitle,
+  initialEquippedAura,
+}: ShopGridProps) {
   const [gold, setGold] = useState(initialGold);
   const [ownedIds, setOwnedIds] = useState<Set<string>>(
     () => new Set(initialOwnedIds)
   );
+  const [equippedTitle, setEquippedTitle] = useState(initialEquippedTitle);
+  const [equippedAura, setEquippedAura] = useState(initialEquippedAura);
   const [pendingItemId, setPendingItemId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,6 +93,47 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
     setPendingItemId(null);
   }
 
+  async function handleEquip(item: ShopItem) {
+    if (pendingItemId || !isEquippable(item.type)) return;
+
+    const slot = item.type;
+    const isCurrentlyEquipped =
+      slot === "title" ? equippedTitle === item.name : equippedAura === item.name;
+
+    setPendingItemId(item.id);
+
+    // Optimistic: toggle this item's slot immediately. Equipping
+    // one item always replaces whatever else occupied that slot,
+    // which the equip_item RPC enforces the same way server-side.
+    const prevTitle = equippedTitle;
+    const prevAura = equippedAura;
+    if (slot === "title") {
+      setEquippedTitle(isCurrentlyEquipped ? null : item.name);
+    } else {
+      setEquippedAura(isCurrentlyEquipped ? null : item.name);
+    }
+
+    try {
+      const result = await equipItem(item.id);
+
+      if (!result.success) {
+        setEquippedTitle(prevTitle);
+        setEquippedAura(prevAura);
+        showToast(result.error);
+      } else {
+        // Reconcile with the server's authoritative slot state.
+        setEquippedTitle(result.data.equippedTitle);
+        setEquippedAura(result.data.equippedAura);
+      }
+    } catch {
+      setEquippedTitle(prevTitle);
+      setEquippedAura(prevAura);
+      showToast("Couldn't reach the server. Check your connection and try again.");
+    }
+
+    setPendingItemId(null);
+  }
+
   return (
     <>
       <div className="glass mb-4 flex items-center justify-between rounded-bento-lg px-5 py-4 md:mb-5">
@@ -107,23 +163,41 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
             const isPending = pendingItemId === item.id;
             const canAfford = gold >= item.cost;
             const Icon = itemTypeIcon(item.type);
+            const equippable = isEquippable(item.type);
+            const equipped =
+              equippable &&
+              (item.type === "title"
+                ? equippedTitle === item.name
+                : equippedAura === item.name);
 
             return (
               <motion.div
                 key={item.id}
-                whileHover={owned || !canAfford ? undefined : { y: -3 }}
+                whileHover={
+                  (owned && !equippable) || (!owned && !canAfford)
+                    ? undefined
+                    : { y: -3 }
+                }
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className={`glass flex flex-col justify-between rounded-bento-md p-5 transition-[opacity,box-shadow] duration-200 ${
-                  !owned && canAfford ? "glass-interactive glow-edge" : ""
+                  (!owned && canAfford) || (owned && equippable)
+                    ? "glass-interactive glow-edge"
+                    : ""
                 } ${!owned && !canAfford ? "opacity-70" : ""}`}
               >
                 <div>
                   <div className="flex items-center justify-between">
                     <Icon className="h-5 w-5 text-xp-violet" strokeWidth={1.75} />
                     {owned && (
-                      <span className="flex items-center gap-1 rounded-full bg-xp-cyan/15 px-2 py-0.5 text-[11px] font-medium text-xp-cyan">
+                      <span
+                        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                          equipped
+                            ? "bg-xp-glow text-space-950"
+                            : "bg-xp-cyan/15 text-xp-cyan"
+                        }`}
+                      >
                         <Check className="h-3 w-3" strokeWidth={2.5} />
-                        Owned
+                        {equipped ? "Equipped" : "Owned"}
                       </span>
                     )}
                   </div>
@@ -145,25 +219,47 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
 
                   <motion.button
                     type="button"
-                    whileTap={owned ? undefined : { scale: 0.95 }}
-                    onClick={() => handlePurchase(item)}
-                    disabled={owned || isPending || !canAfford}
-                    className={`rounded-bento-sm px-3.5 py-2 text-xs font-medium transition-[opacity,box-shadow] duration-200 ${
+                    whileTap={
+                      owned && !equippable ? undefined : { scale: 0.95 }
+                    }
+                    onClick={() =>
                       owned
-                        ? "cursor-default bg-white/[0.04] text-zinc-600"
-                        : canAfford
+                        ? equippable
+                          ? handleEquip(item)
+                          : undefined
+                        : handlePurchase(item)
+                    }
+                    disabled={
+                      isPending || (owned ? !equippable : !canAfford)
+                    }
+                    className={`rounded-bento-sm px-3.5 py-2 text-xs font-medium transition-[opacity,box-shadow] duration-200 ${
+                      !owned
+                        ? canAfford
                           ? "bg-xp-glow text-space-950 shadow-neu-raised-sm hover:opacity-90"
                           : "cursor-not-allowed bg-space-800 text-zinc-600 shadow-neu-pressed"
+                        : equippable
+                          ? equipped
+                            ? "bg-xp-cyan/15 text-xp-cyan shadow-neu-pressed hover:bg-xp-cyan/25"
+                            : "bg-xp-glow text-space-950 shadow-neu-raised-sm hover:opacity-90"
+                          : "cursor-default bg-white/[0.04] text-zinc-600"
                     }`}
                   >
                     {isPending ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : owned ? (
-                      "Owned"
-                    ) : canAfford ? (
-                      "Buy"
+                    ) : !owned ? (
+                      canAfford ? (
+                        "Buy"
+                      ) : (
+                        "Can't afford"
+                      )
+                    ) : equippable ? (
+                      equipped ? (
+                        "Unequip"
+                      ) : (
+                        "Equip"
+                      )
                     ) : (
-                      "Can't afford"
+                      "Owned"
                     )}
                   </motion.button>
                 </div>

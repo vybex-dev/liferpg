@@ -62,6 +62,12 @@ function mapTaskError(message: string): string {
   if (m.includes("item not found")) {
     return "That item doesn't exist.";
   }
+  if (m.includes("item not owned")) {
+    return "You need to own that item before you can equip it.";
+  }
+  if (m.includes("not equippable")) {
+    return "That item can't be equipped.";
+  }
 
   return message;
 }
@@ -358,6 +364,59 @@ export async function purchaseItem(
     data: {
       newGold: row.new_gold,
       purchasedItemId: row.purchased_item_id,
+    },
+  };
+}
+
+// ------------------------------------------------------------
+// equipItem
+//
+// Toggles an owned `title` or `aura` item into (or out of) its
+// slot on the caller's profile. Like completeTask/purchaseItem,
+// this only calls the server-side `equip_item` RPC — ownership and
+// item-type checks happen entirely in Postgres (see
+// supabase/phase6_equip_items.sql), so there's no client-trusted
+// input here.
+// ------------------------------------------------------------
+export type EquipItemResult = {
+  equippedTitle: string | null;
+  equippedAura: string | null;
+};
+
+export async function equipItem(
+  itemId: string
+): Promise<ActionResult<EquipItemResult>> {
+  if (!itemId) {
+    return { success: false, error: "Missing item id." };
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Your session expired. Please log in again." };
+  }
+
+  const { data, error } = await supabase
+    .rpc("equip_item", { item_id: itemId })
+    .single();
+
+  if (error) {
+    return { success: false, error: mapTaskError(error.message) };
+  }
+
+  const row = data as { equipped_title: string | null; equipped_aura: string | null };
+
+  revalidatePath(DASHBOARD_PATH);
+
+  return {
+    success: true,
+    data: {
+      equippedTitle: row.equipped_title,
+      equippedAura: row.equipped_aura,
     },
   };
 }

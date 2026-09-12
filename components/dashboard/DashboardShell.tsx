@@ -67,15 +67,41 @@ export function DashboardShell({
   const [levelUpLevel, setLevelUpLevel] = useState<number | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Brief, self-clearing "this task just fed that attribute" signal
+  // for AttributeRow — a floating "+N XP" badge and a glow on the
+  // matching card, so the category system reads as an intentional
+  // link rather than invisible bookkeeping. `id` is bumped on every
+  // award (even repeats on the same attribute) so AnimatePresence
+  // always replays the animation instead of no-op'ing on an
+  // unchanged key.
+  const [recentAward, setRecentAward] = useState<{
+    id: number;
+    name: string;
+    amount: number;
+  } | null>(null);
+  const awardIdRef = useRef(0);
+  const awardTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const showToast = useCallback((message: string) => {
     setToast(message);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), TOAST_DURATION_MS);
   }, []);
 
+  const triggerAward = useCallback((name: string, amount: number) => {
+    const id = ++awardIdRef.current;
+    setRecentAward({ id, name, amount });
+    if (awardTimer.current) clearTimeout(awardTimer.current);
+    awardTimer.current = setTimeout(() => {
+      // Only clear if nothing newer has replaced it in the meantime.
+      setRecentAward((current) => (current?.id === id ? null : current));
+    }, 900);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (toastTimer.current) clearTimeout(toastTimer.current);
+      if (awardTimer.current) clearTimeout(awardTimer.current);
     };
   }, []);
 
@@ -162,6 +188,7 @@ export function DashboardShell({
     // This is what makes the checkbox, the hero XP bar, the gold
     // counter, and the attribute bar all move the instant the
     // person clicks — well before complete_task's round trip.
+    triggerAward(attrName, task.xp_reward);
     setTasks((prev) =>
       prev.map((t) =>
         t.id === task.id
@@ -271,6 +298,8 @@ export function DashboardShell({
             username={username}
             level={profile.level}
             currentXp={profile.current_xp}
+            equippedTitle={initialProfile.equipped_title}
+            equippedAura={initialProfile.equipped_aura}
           />
         </BentoHeroArea>
 
@@ -283,7 +312,7 @@ export function DashboardShell({
         </BentoGoldArea>
 
         <BentoAttrsArea>
-          <AttributeRow attributes={attributes} />
+          <AttributeRow attributes={attributes} award={recentAward} />
         </BentoAttrsArea>
 
         <BentoTasksArea>

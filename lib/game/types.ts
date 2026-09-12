@@ -6,6 +6,10 @@ export type Profile = {
   gold: number;
   streak_count: number;
   last_active_date: string | null;
+  /** Name of the currently equipped `title`-type item, or null. */
+  equipped_title: string | null;
+  /** Name of the currently equipped `aura`-type item, or null. */
+  equipped_aura: string | null;
 };
 
 export type Attribute = {

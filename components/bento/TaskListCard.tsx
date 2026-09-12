@@ -284,7 +284,9 @@ function TaskRow({
       <div className="min-w-0 flex-1">
         <p
           className={`truncate text-sm ${
-            task.is_completed ? "text-zinc-500 line-through" : "text-zinc-200"
+            task.is_completed
+              ? "text-zinc-400 line-through decoration-zinc-600"
+              : "text-zinc-200"
           }`}
         >
           {task.title}

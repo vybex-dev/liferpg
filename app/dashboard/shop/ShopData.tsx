@@ -15,7 +15,11 @@ export async function ShopData() {
   }
 
   const [profileRes, itemsRes, ownedRes] = await Promise.all([
-    supabase.from("profiles").select("gold").eq("id", user.id).single(),
+    supabase
+      .from("profiles")
+      .select("gold, equipped_title, equipped_aura")
+      .eq("id", user.id)
+      .single(),
     supabase
       .from("items")
       .select("id, name, cost, type")
@@ -39,6 +43,8 @@ export async function ShopData() {
       initialGold={profileRes.data.gold as number}
       items={items}
       initialOwnedIds={ownedIds}
+      initialEquippedTitle={profileRes.data.equipped_title as string | null}
+      initialEquippedAura={profileRes.data.equipped_aura as string | null}
     />
   );
 }

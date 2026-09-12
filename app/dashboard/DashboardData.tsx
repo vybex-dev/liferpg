@@ -17,7 +17,9 @@ export async function DashboardData() {
   const [profileRes, attributesRes, tasksRes] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, username, level, current_xp, gold, streak_count, last_active_date")
+      .select(
+        "id, username, level, current_xp, gold, streak_count, last_active_date, equipped_title, equipped_aura"
+      )
       .eq("id", user.id)
       .single(),
     supabase

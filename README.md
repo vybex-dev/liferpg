@@ -74,6 +74,8 @@ one created):
    actually happens, atomically.
 4. `supabase/phase5_seed_items.sql` — seeds the shop with cosmetic items
    so it isn't empty on first load.
+5. `supabase/phase6_equip_items.sql` — adds equipped title/aura fields
+   and the server-side item equip functionality.
 
 Paste each file's contents into the SQL Editor and click **Run**, one at a
 time, in order.
@@ -143,8 +145,6 @@ this project:
 - **Framer Motion** — animation (the level-up sequence, optimistic UI transitions).
 - **lucide-react** — icon set.
 - **Vercel** — hosting and deployment.
-- **Claude (Anthropic)** was used throughout development — architecture,
-  component code, SQL, copy, accessibility hardening, and this README were
-  all produced with Claude's assistance across multiple sessions.
+- **Claude (Anthropic)** was used during development.
 
 No other AI tools, code generators, or third-party APIs were used.

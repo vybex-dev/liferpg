@@ -160,17 +160,22 @@ body::before {
   }
 }
 
-/* Sweep for the HeroCard XP bar — travels the width of its own
-   filled parent, not the viewport, so it always lands back at
-   "off-screen left" regardless of how full the bar is. */
+/* Sweep for the HeroCard XP bar — driven by `left` percentages
+   (resolved against the filled bar's own width, since it's the
+   nearest positioned ancestor) rather than a fixed pixel
+   translateX. A fixed-pixel sweep only travels ~360px total, which
+   falls short of the bar's right edge on any wider viewport;
+   percentages scale automatically so it always sweeps fully off
+   one edge to fully off the other, regardless of how wide the bar
+   renders. */
 @keyframes xp-shimmer {
   0%,
   15% {
-    transform: translateX(-40px);
+    left: -15%;
   }
   65%,
   100% {
-    transform: translateX(320px);
+    left: 115%;
   }
 }
 

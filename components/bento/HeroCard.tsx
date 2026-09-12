@@ -79,7 +79,7 @@ export function HeroCard({
                 prefers-reduced-motion reset in globals.css. */}
             <span
               aria-hidden
-              className="absolute inset-y-0 left-0 w-10 -translate-x-10 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+              className="absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/50 to-transparent"
               style={{ animation: "xp-shimmer 2.6s ease-in-out infinite" }}
             />
           </div>

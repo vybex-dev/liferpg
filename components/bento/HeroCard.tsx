@@ -15,7 +15,7 @@ export function HeroCard({ username, level, currentXp }: HeroCardProps) {
       <div className="flex items-center gap-4">
         <div
           aria-hidden
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-xp-glow font-display text-xl font-semibold text-space-950 shadow-glow-violet"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-xp-glow font-display text-xl font-semibold text-space-950 shadow-[0_0_24px_0_rgba(139,92,246,0.35),0_0_0_3px_rgba(255,255,255,0.06),5px_5px_12px_rgba(0,0,0,0.5)]"
         >
           {initial}
         </div>
@@ -44,9 +44,9 @@ export function HeroCard({ username, level, currentXp }: HeroCardProps) {
             {currentXp.toLocaleString()} / {xpToNext.toLocaleString()} XP
           </span>
         </div>
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/5">
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/5 shadow-neu-pressed">
           <div
-            className="h-full rounded-full bg-xp-glow shadow-glow-violet transition-[width] duration-500 ease-out"
+            className="relative h-full overflow-hidden rounded-full bg-xp-glow shadow-glow-violet transition-[width] duration-500 ease-out"
             style={{ width: `${Math.round(progress * 100)}%` }}
             role="progressbar"
             aria-valuenow={Math.round(progress * 100)}
@@ -54,7 +54,18 @@ export function HeroCard({ username, level, currentXp }: HeroCardProps) {
             aria-valuemax={100}
             aria-valuetext={`${currentXp.toLocaleString()} of ${xpToNext.toLocaleString()} XP to level ${level + 1}`}
             aria-label="Experience progress to next level"
-          />
+          >
+            {/* Looping light sweep across the filled portion only —
+                ambient texture on the bar itself, not a page-level
+                animated moment, so it's exempt from the "one big
+                orchestrated moment" rule. Caught by the global
+                prefers-reduced-motion reset in globals.css. */}
+            <span
+              aria-hidden
+              className="absolute inset-y-0 left-0 w-10 -translate-x-10 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+              style={{ animation: "xp-shimmer 2.6s ease-in-out infinite" }}
+            />
+          </div>
         </div>
       </div>
     </div>

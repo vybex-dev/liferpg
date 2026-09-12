@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Loader2, Plus, X } from "lucide-react";
 import type { ActionResult, CreateTaskInput } from "@/app/actions/tasks";
 import { TASK_CATEGORIES, type Task } from "@/lib/game/types";
@@ -214,6 +214,25 @@ function TaskRow({
   const tokens = task.category
     ? attributeTokens(categoryToAttributeName(task.category))
     : null;
+  const prefersReducedMotion = useReducedMotion();
+
+  // Tracks the is_completed transition (not just its current value)
+  // so the particle burst fires exactly once, on the render where
+  // optimistic state flips it true — never on mount for
+  // already-completed tasks loaded from the server.
+  const wasCompleted = useRef(task.is_completed);
+  const [showBurst, setShowBurst] = useState(false);
+
+  useEffect(() => {
+    const justCompleted = !wasCompleted.current && task.is_completed;
+    wasCompleted.current = task.is_completed;
+
+    if (justCompleted && !prefersReducedMotion) {
+      setShowBurst(true);
+      const timer = setTimeout(() => setShowBurst(false), 650);
+      return () => clearTimeout(timer);
+    }
+  }, [task.is_completed, prefersReducedMotion]);
 
   return (
     <li
@@ -229,12 +248,15 @@ function TaskRow({
         aria-label={
           task.is_completed ? "Task completed" : `Complete "${task.title}"`
         }
-        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+        className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-[background-color,border-color,box-shadow] duration-200 ${
           task.is_completed
-            ? "border-xp-cyan bg-xp-cyan/20"
-            : "border-zinc-600 hover:enabled:border-xp-cyan"
+            ? "border-xp-cyan bg-xp-cyan/20 shadow-glow-cyan"
+            : "border-transparent bg-space-800 shadow-neu-pressed hover:enabled:ring-1 hover:enabled:ring-xp-cyan/50"
         }`}
       >
+        {showBurst && (
+          <CompletionBurst colorClass={tokens?.bar ?? "bg-xp-cyan"} />
+        )}
         {isPending ? (
           <Loader2 className="h-3 w-3 animate-spin text-zinc-400" />
         ) : task.is_completed ? (
@@ -287,5 +309,40 @@ function TaskRow({
         <X className="h-3.5 w-3.5" />
       </button>
     </li>
+  );
+}
+
+/**
+ * A brief radial spray of dots in the task's own attribute color,
+ * anchored to the checkbox. Purely decorative (aria-hidden) — the
+ * real "task done" state is already conveyed by the checkmark draw-in
+ * and the strikethrough, this is just the celebratory flourish the
+ * brief asks for. Unmounts itself via the parent's setTimeout, so it
+ * never lingers as dead DOM on a row that's since re-rendered.
+ */
+function CompletionBurst({ colorClass }: { colorClass: string }) {
+  const particles = Array.from({ length: 8 });
+
+  return (
+    <span aria-hidden className="pointer-events-none absolute inset-0 z-10">
+      {particles.map((_, i) => {
+        const angle = (i / particles.length) * Math.PI * 2;
+        const distance = 14 + (i % 3) * 4;
+        return (
+          <motion.span
+            key={i}
+            className={`absolute left-1/2 top-1/2 h-1 w-1 rounded-full ${colorClass}`}
+            initial={{ x: "-50%", y: "-50%", opacity: 1, scale: 1 }}
+            animate={{
+              x: `calc(-50% + ${Math.cos(angle) * distance}px)`,
+              y: `calc(-50% + ${Math.sin(angle) * distance}px)`,
+              opacity: 0,
+              scale: 0.3,
+            }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+          />
+        );
+      })}
+    </span>
   );
 }

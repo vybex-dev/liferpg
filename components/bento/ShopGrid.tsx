@@ -111,9 +111,11 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
             return (
               <motion.div
                 key={item.id}
-                whileHover={owned ? undefined : { y: -3 }}
+                whileHover={owned || !canAfford ? undefined : { y: -3 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="glass flex flex-col justify-between rounded-bento-md p-5"
+                className={`glass flex flex-col justify-between rounded-bento-md p-5 transition-[opacity,box-shadow] duration-200 ${
+                  !owned && canAfford ? "hover:shadow-glow-violet" : ""
+                } ${!owned && !canAfford ? "opacity-70" : ""}`}
               >
                 <div>
                   <div className="flex items-center justify-between">
@@ -146,10 +148,12 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
                     whileTap={owned ? undefined : { scale: 0.95 }}
                     onClick={() => handlePurchase(item)}
                     disabled={owned || isPending || !canAfford}
-                    className={`rounded-bento-sm px-3.5 py-2 text-xs font-medium transition-opacity ${
+                    className={`rounded-bento-sm px-3.5 py-2 text-xs font-medium transition-[opacity,box-shadow] duration-200 ${
                       owned
                         ? "cursor-default bg-white/[0.04] text-zinc-600"
-                        : "bg-xp-glow text-space-950 hover:opacity-90 disabled:opacity-40"
+                        : canAfford
+                          ? "bg-xp-glow text-space-950 shadow-neu-raised-sm hover:opacity-90"
+                          : "cursor-not-allowed bg-space-800 text-zinc-600 shadow-neu-pressed"
                     }`}
                   >
                     {isPending ? (

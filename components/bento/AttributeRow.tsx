@@ -19,7 +19,7 @@ export function AttributeRow({ attributes }: { attributes: Attribute[] }) {
           return (
             <div
               key={name}
-              className={`rounded-bento-sm border ${tokens.border} bg-white/[0.02] p-3.5`}
+              className={`rounded-bento-sm border ${tokens.border} bg-white/[0.02] p-3.5 transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 ${tokens.hoverBorder} ${tokens.hoverGlow}`}
             >
               <div className="flex items-baseline justify-between">
                 <span className={`text-sm font-medium ${tokens.text}`}>

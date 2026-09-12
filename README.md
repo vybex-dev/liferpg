@@ -155,6 +155,10 @@ liferpg/
 - See `supabase/phase7_security_hardening.sql` for the full rationale
   and the specific privileges this closes off.
 
+## License
+
+MIT © Life RPG. See [LICENSE](./LICENSE) for the full text.
+
 ## Accessibility notes
 
 - Full keyboard navigation, with a themed focus-visible ring (not the

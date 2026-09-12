@@ -100,12 +100,12 @@ export function ShopItemCardSkeleton() {
 
 export function ShopSkeleton() {
   return (
-    <div>
-      <div className="glass mb-4 flex items-center justify-between rounded-bento-lg px-5 py-4 md:mb-5">
+    <div role="status" aria-label="Loading the shop">
+      <div className="glass mb-4 flex items-center justify-between rounded-bento-lg px-5 py-4 md:mb-5" aria-hidden>
         <Shimmer className="h-3 w-20" />
         <Shimmer className="h-6 w-16" />
       </div>
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3" aria-hidden>
         {Array.from({ length: 6 }).map((_, i) => (
           <ShopItemCardSkeleton key={i} />
         ))}
@@ -116,20 +116,24 @@ export function ShopSkeleton() {
 
 export function DashboardSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5 md:auto-rows-min md:[grid-template-areas:'hero_hero_streak_gold'_'attrs_attrs_attrs_attrs'_'tasks_tasks_tasks_tasks']">
-      <div className="md:[grid-area:hero]">
+    <div
+      role="status"
+      aria-label="Loading your dashboard"
+      className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5 md:auto-rows-min md:[grid-template-areas:'hero_hero_streak_gold'_'attrs_attrs_attrs_attrs'_'tasks_tasks_tasks_tasks']"
+    >
+      <div className="md:[grid-area:hero]" aria-hidden>
         <HeroCardSkeleton />
       </div>
-      <div className="md:[grid-area:streak]">
+      <div className="md:[grid-area:streak]" aria-hidden>
         <StatCardSkeleton />
       </div>
-      <div className="md:[grid-area:gold]">
+      <div className="md:[grid-area:gold]" aria-hidden>
         <StatCardSkeleton />
       </div>
-      <div className="md:[grid-area:attrs]">
+      <div className="md:[grid-area:attrs]" aria-hidden>
         <AttributeRowSkeleton />
       </div>
-      <div className="md:[grid-area:tasks]">
+      <div className="md:[grid-area:tasks]" aria-hidden>
         <TaskListCardSkeleton />
       </div>
     </div>

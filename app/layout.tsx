@@ -28,7 +28,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <body>
+        <a href="#main-content" className="sr-only sr-only-focusable">
+          Skip to main content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

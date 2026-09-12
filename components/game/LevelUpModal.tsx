@@ -27,6 +27,50 @@ export function LevelUpModal({ level, onClose }: LevelUpModalProps) {
   const prefersReducedMotion = useReducedMotion();
   const [displayLevel, setDisplayLevel] = useState(level ?? 1);
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  // Move focus into the dialog when it opens, and back to whatever
+  // was focused before (the checkbox that triggered the level-up)
+  // when it closes — otherwise a keyboard user's focus stays on
+  // the now-hidden task row.
+  useEffect(() => {
+    if (level != null) {
+      previouslyFocused.current = document.activeElement as HTMLElement | null;
+      // Wait a tick for the dialog to mount before focusing it.
+      const id = requestAnimationFrame(() => closeButtonRef.current?.focus());
+      return () => cancelAnimationFrame(id);
+    }
+    previouslyFocused.current?.focus?.();
+  }, [level]);
+
+  // Simple focus trap: Tab/Shift+Tab cycle only among this
+  // dialog's own focusable elements while it's open.
+  useEffect(() => {
+    if (level == null) return;
+
+    function handleTrap(e: KeyboardEvent) {
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleTrap);
+    return () => window.removeEventListener("keydown", handleTrap);
+  }, [level]);
 
   useEffect(() => {
     if (level == null) return;
@@ -71,9 +115,6 @@ export function LevelUpModal({ level, onClose }: LevelUpModalProps) {
     <AnimatePresence>
       {level != null && (
         <motion.div
-          role="status"
-          aria-live="polite"
-          aria-label={`Level up! You are now level ${level}.`}
           className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/80 px-4 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -82,6 +123,11 @@ export function LevelUpModal({ level, onClose }: LevelUpModalProps) {
           onClick={onClose}
         >
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-live="polite"
+            aria-label={`Level up! You are now level ${level}.`}
             className="relative flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
             initial={
@@ -100,6 +146,18 @@ export function LevelUpModal({ level, onClose }: LevelUpModalProps) {
               ease: [0.16, 1, 0.3, 1],
             }}
           >
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Dismiss level up notification"
+              className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-zinc-100 sm:-top-3 sm:-right-3"
+            >
+              <span aria-hidden className="text-lg leading-none">
+                ×
+              </span>
+            </button>
+
             {!prefersReducedMotion && (
               <motion.div
                 aria-hidden
@@ -135,7 +193,7 @@ export function LevelUpModal({ level, onClose }: LevelUpModalProps) {
                 duration: 0.4,
               }}
             >
-              Tap anywhere to continue
+              Tap anywhere, or press Escape, to continue
             </motion.p>
           </motion.div>
         </motion.div>

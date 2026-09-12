@@ -7,7 +7,7 @@ import { LogOut, Store } from "lucide-react";
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6 md:px-10 md:py-10">
+    <main id="main-content" className="min-h-screen px-4 py-6 sm:px-6 md:px-10 md:py-10">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between md:mb-8">
           <h1 className="font-display text-xl font-semibold text-zinc-100 md:text-2xl">

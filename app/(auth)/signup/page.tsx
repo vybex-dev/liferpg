@@ -31,6 +31,7 @@ function SubmitButton() {
 
 export default function SignupPage() {
   const [state, formAction] = useFormState(signup, initialState);
+  const errorId = "signup-error";
 
   return (
     <div className="glass-strong rounded-bento-lg p-8">
@@ -43,7 +44,7 @@ export default function SignupPage() {
         </p>
       </div>
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-4" noValidate>
         <div>
           <label
             htmlFor="username"
@@ -59,6 +60,7 @@ export default function SignupPage() {
             required
             minLength={3}
             placeholder="shadowrunner"
+            aria-describedby={state.error ? errorId : undefined}
             className="w-full rounded-bento-sm border border-glass-border bg-white/5 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition-colors focus:border-xp-violet/60 focus:bg-white/[0.07]"
           />
         </div>
@@ -77,6 +79,7 @@ export default function SignupPage() {
             autoComplete="email"
             required
             placeholder="you@example.com"
+            aria-describedby={state.error ? errorId : undefined}
             className="w-full rounded-bento-sm border border-glass-border bg-white/5 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition-colors focus:border-xp-violet/60 focus:bg-white/[0.07]"
           />
         </div>
@@ -96,12 +99,14 @@ export default function SignupPage() {
             required
             minLength={6}
             placeholder="At least 6 characters"
+            aria-describedby={state.error ? errorId : undefined}
             className="w-full rounded-bento-sm border border-glass-border bg-white/5 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition-colors focus:border-xp-violet/60 focus:bg-white/[0.07]"
           />
         </div>
 
         {state.error && (
           <div
+            id={errorId}
             role="alert"
             className="flex items-start gap-2 rounded-bento-sm border border-attr-strength/30 bg-attr-strength/10 px-3 py-2.5 text-sm text-red-300"
           >

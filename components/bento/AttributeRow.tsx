@@ -37,6 +37,7 @@ export function AttributeRow({ attributes }: { attributes: Attribute[] }) {
                   aria-valuenow={Math.round(progress * 100)}
                   aria-valuemin={0}
                   aria-valuemax={100}
+                  aria-valuetext={`${xp} of ${xpToNext} XP toward ${name} level ${level + 1}`}
                   aria-label={`${name} progress to next level`}
                 />
               </div>

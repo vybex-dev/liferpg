@@ -6,7 +6,7 @@ import { ShopSkeleton } from "@/components/bento/skeletons";
 
 export default function ShopPage() {
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6 md:px-10 md:py-10">
+    <main id="main-content" className="min-h-screen px-4 py-6 sm:px-6 md:px-10 md:py-10">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center gap-3 md:mb-8">
           <Link

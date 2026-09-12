@@ -22,6 +22,7 @@ export function ErrorToast({ message, onDismiss }: ErrorToastProps) {
         <motion.div
           role="alert"
           aria-live="assertive"
+          aria-atomic="true"
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.98 }}

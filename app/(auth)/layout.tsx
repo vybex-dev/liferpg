@@ -6,7 +6,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-12">
+    <main
+      id="main-content"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-12"
+    >
       {/* Ambient glow orbs behind the card — deliberate, not a flat gradient */}
       <div
         aria-hidden

@@ -80,34 +80,51 @@ export function DashboardShell({
   }, []);
 
   async function handleCreateTask(input: CreateTaskInput) {
-    const result = await createTask(input);
+    try {
+      const result = await createTask(input);
 
-    if (result.success) {
-      setTasks((prev) => [
-        {
-          id: result.data.id,
-          title: input.title.trim(),
-          category: input.category ?? null,
-          xp_reward: input.xpReward ?? 10,
-          is_completed: false,
-          completed_at: null,
-          created_at: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
+      if (result.success) {
+        setTasks((prev) => [
+          {
+            id: result.data.id,
+            title: input.title.trim(),
+            category: input.category ?? null,
+            xp_reward: input.xpReward ?? 10,
+            is_completed: false,
+            completed_at: null,
+            created_at: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
+
+      return result;
+    } catch {
+      // The server action itself never rejects on its own — it
+      // always resolves to { success: false, error } — so a thrown
+      // error here means the request never reached the server at
+      // all (offline, DNS failure, connection dropped mid-flight).
+      // Surface it the same way any other failure would be.
+      return {
+        success: false as const,
+        error: "Couldn't reach the server. Check your connection and try again.",
+      };
     }
-
-    return result;
   }
 
   async function handleDeleteTask(taskId: string) {
     const snapshot = tasks;
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
 
-    const result = await deleteTask(taskId);
-    if (!result.success) {
+    try {
+      const result = await deleteTask(taskId);
+      if (!result.success) {
+        setTasks(snapshot);
+        showToast(result.error);
+      }
+    } catch {
       setTasks(snapshot);
-      showToast(result.error);
+      showToast("Couldn't reach the server. Check your connection and try again.");
     }
   }
 
@@ -179,7 +196,22 @@ export function DashboardShell({
       ];
     });
 
-    const result = await completeTask(task.id);
+    let result: Awaited<ReturnType<typeof completeTask>>;
+    try {
+      result = await completeTask(task.id);
+    } catch {
+      // The action rejected outright rather than resolving with
+      // { success: false } — the request never made it to (or back
+      // from) the server. Roll back exactly the way a handled
+      // failure would, so the optimistic state never gets stranded
+      // mid-flight on a dropped connection.
+      setTasks(prevTasks);
+      setProfile(prevProfile);
+      setAttributes(prevAttributes);
+      showToast("Couldn't reach the server. Check your connection and try again.");
+      setPendingTaskId(null);
+      return;
+    }
 
     if (!result.success) {
       // ---- Rollback ----

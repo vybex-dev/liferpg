@@ -28,6 +28,79 @@ body {
   height: 100%;
 }
 
+/*
+ * Theme-matched focus ring.
+ *
+ * :focus-visible (not :focus) so the ring only appears for
+ * keyboard/switch/voice navigation, never for a mouse click — the
+ * cyan glow means "you tabbed here," not "you clicked here."
+ * Applied globally so no interactive element in the app can ship
+ * without one, including any added after this pass.
+ */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-xp-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/*
+ * Screen-reader-only utility: visually hidden but still reachable
+ * by assistive tech and still focusable (for the skip link below).
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus {
+  position: fixed;
+  z-index: 100;
+  top: 1rem;
+  left: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1.25rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border-radius: 0.75rem;
+  background: var(--color-bg-mid);
+  border: 1px solid var(--glass-border);
+  color: #f4f4f5;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/*
+ * Respect prefers-reduced-motion for anything NOT already handled
+ * by a component's own useReducedMotion() check (Framer Motion
+ * components branch in JS; this is the CSS-only backstop for
+ * plain CSS transitions/animations like skeleton shimmer, hover
+ * scale, and color transitions declared via Tailwind utilities).
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body {
   background: radial-gradient(
       ellipse 80% 60% at 50% -10%,

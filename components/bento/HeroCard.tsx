@@ -27,6 +27,13 @@ export function HeroCard({ username, level, currentXp }: HeroCardProps) {
             </span>
             <span className="text-sm font-medium text-zinc-500">level</span>
           </div>
+          {/* Visually hidden: announces the current level to screen
+              readers whenever it changes, independent of the
+              level-up modal (which only fires on the transition
+              itself and is dismissible before it's fully read). */}
+          <p className="sr-only" aria-live="polite">
+            Level {level}
+          </p>
         </div>
       </div>
 
@@ -45,6 +52,7 @@ export function HeroCard({ username, level, currentXp }: HeroCardProps) {
             aria-valuenow={Math.round(progress * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
+            aria-valuetext={`${currentXp.toLocaleString()} of ${xpToNext.toLocaleString()} XP to level ${level + 1}`}
             aria-label="Experience progress to next level"
           />
         </div>

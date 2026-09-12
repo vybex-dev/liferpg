@@ -79,6 +79,9 @@ export function TaskListCard({
     });
   }
 
+  const titleFieldId = "new-task-title";
+  const errorId = "new-task-error";
+
   return (
     <div className="glass rounded-bento-lg p-5 md:p-6">
       <p className="text-xs text-zinc-500">Quest log</p>
@@ -88,16 +91,25 @@ export function TaskListCard({
         className="mt-4 flex flex-col gap-2.5 sm:flex-row sm:items-center"
         noValidate
       >
+        <label htmlFor={titleFieldId} className="sr-only">
+          Task title
+        </label>
         <input
+          id={titleFieldId}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Add a task — read 20 pages, go for a run..."
           maxLength={200}
           aria-invalid={Boolean(formError)}
+          aria-describedby={formError ? errorId : undefined}
           className="min-w-0 flex-1 rounded-bento-sm border border-glass-border bg-white/[0.03] px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition-colors focus:border-xp-violet/50"
         />
+        <label htmlFor="new-task-category" className="sr-only">
+          Category
+        </label>
         <select
+          id="new-task-category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="rounded-bento-sm border border-glass-border bg-white/[0.03] px-3 py-2.5 text-sm text-zinc-300 outline-none transition-colors focus:border-xp-violet/50"
@@ -109,7 +121,11 @@ export function TaskListCard({
             </option>
           ))}
         </select>
+        <label htmlFor="new-task-xp" className="sr-only">
+          XP reward
+        </label>
         <input
+          id="new-task-xp"
           type="number"
           min={1}
           max={500}
@@ -134,14 +150,17 @@ export function TaskListCard({
       </form>
 
       {formError && (
-        <p className="mt-3 text-xs text-attr-strength">{formError}</p>
+        <p id={errorId} role="alert" className="mt-3 text-xs text-attr-strength">
+          {formError}
+        </p>
       )}
 
       <div className="mt-5">
         {tasks.length === 0 ? (
           <TaskListEmptyState />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-2" aria-label="Tasks">
+
             {openTasks.map((task) => (
               <TaskRow
                 key={task.id}
@@ -263,7 +282,7 @@ function TaskRow({
         type="button"
         onClick={onDelete}
         aria-label={`Delete "${task.title}"`}
-        className="shrink-0 text-zinc-700 opacity-0 transition-opacity hover:text-attr-strength group-hover:opacity-100"
+        className="shrink-0 text-zinc-700 opacity-0 transition-opacity hover:text-attr-strength focus-visible:opacity-100 group-hover:opacity-100"
       >
         <X className="h-3.5 w-3.5" />
       </button>

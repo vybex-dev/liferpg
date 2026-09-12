@@ -46,20 +46,33 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
     setGold((g) => g - item.cost);
     setOwnedIds((prev) => new Set(prev).add(item.id));
 
-    const result = await purchaseItem(item.id);
+    try {
+      const result = await purchaseItem(item.id);
 
-    if (!result.success) {
-      // Roll back both the balance and the ownership flag together.
+      if (!result.success) {
+        // Roll back both the balance and the ownership flag together.
+        setGold(prevGold);
+        setOwnedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(item.id);
+          return next;
+        });
+        showToast(result.error);
+      } else {
+        // Reconcile with the server's authoritative balance.
+        setGold(result.data.newGold);
+      }
+    } catch {
+      // Request never completed a round trip (offline, dropped
+      // connection) — roll back the same way a handled failure
+      // would rather than leaving a phantom purchase on screen.
       setGold(prevGold);
       setOwnedIds((prev) => {
         const next = new Set(prev);
         next.delete(item.id);
         return next;
       });
-      showToast(result.error);
-    } else {
-      // Reconcile with the server's authoritative balance.
-      setGold(result.data.newGold);
+      showToast("Couldn't reach the server. Check your connection and try again.");
     }
 
     setPendingItemId(null);

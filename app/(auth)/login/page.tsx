@@ -43,7 +43,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-4" noValidate>
         <div>
           <label
             htmlFor="email"
@@ -58,6 +58,7 @@ export default function LoginPage() {
             autoComplete="email"
             required
             placeholder="you@example.com"
+            aria-describedby={state.error ? "login-error" : undefined}
             className="w-full rounded-bento-sm border border-glass-border bg-white/5 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition-colors focus:border-xp-violet/60 focus:bg-white/[0.07]"
           />
         </div>
@@ -76,12 +77,14 @@ export default function LoginPage() {
             autoComplete="current-password"
             required
             placeholder="••••••••"
+            aria-describedby={state.error ? "login-error" : undefined}
             className="w-full rounded-bento-sm border border-glass-border bg-white/5 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition-colors focus:border-xp-violet/60 focus:bg-white/[0.07]"
           />
         </div>
 
         {state.error && (
           <div
+            id="login-error"
             role="alert"
             className="flex items-start gap-2 rounded-bento-sm border border-attr-strength/30 bg-attr-strength/10 px-3 py-2.5 text-sm text-red-300"
           >

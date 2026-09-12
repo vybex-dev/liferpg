@@ -1,32 +1,17 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 import { logout } from "@/app/actions/auth";
+import { DashboardData } from "./DashboardData";
+import { DashboardSkeleton } from "@/components/bento/skeletons";
 import { LogOut } from "lucide-react";
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Belt and suspenders — middleware already guards this route,
-  // but a Server Component should never trust that alone.
-  if (!user) {
-    redirect("/login");
-  }
-
+export default function DashboardPage() {
   return (
-    <main className="min-h-screen p-8">
-      <div className="glass rounded-bento-lg p-8 max-w-lg mx-auto">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="font-display text-2xl font-semibold text-zinc-100">
-              Dashboard
-            </h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Logged in as {user.email}
-            </p>
-          </div>
+    <main className="min-h-screen px-4 py-6 sm:px-6 md:px-10 md:py-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-6 flex items-center justify-between md:mb-8">
+          <h1 className="font-display text-xl font-semibold text-zinc-100 md:text-2xl">
+            Life RPG
+          </h1>
 
           <form action={logout}>
             <button
@@ -39,10 +24,9 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-sm text-zinc-500">
-          Bento grid, XP bars, quests, and the rest of the game loop land in
-          later phases.
-        </p>
+        <Suspense fallback={<DashboardSkeleton />}>
+          <DashboardData />
+        </Suspense>
       </div>
     </main>
   );

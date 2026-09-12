@@ -43,6 +43,7 @@ const config: Config = {
           strength: "#f43f5e",
           intellect: "#38bdf8",
           discipline: "#a3e635",
+          charisma: "#e879f9",
           vitality: "#fb923c",
         },
       },

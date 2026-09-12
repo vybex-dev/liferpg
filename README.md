@@ -35,7 +35,7 @@ is a read-only mirror used purely to render progress bars without a round trip.
 ### 1. Clone and install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/vybex-dev/liferpg.git
 cd liferpg
 npm install
 ```

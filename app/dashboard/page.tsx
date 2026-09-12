@@ -1,8 +1,9 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 import { DashboardData } from "./DashboardData";
 import { DashboardSkeleton } from "@/components/bento/skeletons";
-import { LogOut } from "lucide-react";
+import { LogOut, Store } from "lucide-react";
 
 export default function DashboardPage() {
   return (
@@ -13,15 +14,25 @@ export default function DashboardPage() {
             Life RPG
           </h1>
 
-          <form action={logout}>
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 rounded-bento-sm border border-glass-border px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:border-attr-strength/40 hover:text-attr-strength"
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/shop"
+              className="flex items-center gap-1.5 rounded-bento-sm border border-glass-border px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:border-gold/40 hover:text-gold-bright"
             >
-              <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
-              Log out
-            </button>
-          </form>
+              <Store className="h-3.5 w-3.5" strokeWidth={2} />
+              Shop
+            </Link>
+
+            <form action={logout}>
+              <button
+                type="submit"
+                className="flex items-center gap-1.5 rounded-bento-sm border border-glass-border px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:border-attr-strength/40 hover:text-attr-strength"
+              >
+                <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
+                Log out
+              </button>
+            </form>
+          </div>
         </div>
 
         <Suspense fallback={<DashboardSkeleton />}>

@@ -80,6 +80,40 @@ export function TaskListCardSkeleton() {
   );
 }
 
+export function ShopItemCardSkeleton() {
+  return (
+    <div className="glass flex flex-col justify-between rounded-bento-md p-5">
+      <div>
+        <div className="flex items-center justify-between">
+          <Shimmer className="h-5 w-5 rounded-md" />
+        </div>
+        <Shimmer className="mt-3 h-4 w-24" />
+        <Shimmer className="mt-2 h-2.5 w-14" />
+      </div>
+      <div className="mt-5 flex items-center justify-between">
+        <Shimmer className="h-4 w-10" />
+        <Shimmer className="h-8 w-16 rounded-bento-sm" />
+      </div>
+    </div>
+  );
+}
+
+export function ShopSkeleton() {
+  return (
+    <div>
+      <div className="glass mb-4 flex items-center justify-between rounded-bento-lg px-5 py-4 md:mb-5">
+        <Shimmer className="h-3 w-20" />
+        <Shimmer className="h-6 w-16" />
+      </div>
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <ShopItemCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function DashboardSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5 md:auto-rows-min md:[grid-template-areas:'hero_hero_streak_gold'_'attrs_attrs_attrs_attrs'_'tasks_tasks_tasks_tasks']">

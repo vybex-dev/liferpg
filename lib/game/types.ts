@@ -43,6 +43,14 @@ export const ATTRIBUTE_ORDER = [
 
 export type AttributeName = (typeof ATTRIBUTE_ORDER)[number];
 
+/** A row from the global `items` catalog (see supabase/schema.sql). */
+export type ShopItem = {
+  id: string;
+  name: string;
+  cost: number;
+  type: string;
+};
+
 export const TASK_CATEGORIES = [
   { value: "strength", label: "Strength" },
   { value: "intellect", label: "Intellect" },

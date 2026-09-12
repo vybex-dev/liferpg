@@ -69,3 +69,48 @@ export function previewXpGain(
 
   return { level: simLevel, currentXp: simXp, leveledUp };
 }
+
+/**
+ * Client-side mirror of gold_reward_for_task() in
+ * supabase/phase3_game_logic.sql, for optimistic preview only.
+ * The server's value is always what actually lands in the
+ * database — this only exists so the gold counter can bump the
+ * instant a task is completed instead of waiting on the RPC.
+ */
+export function previewGoldReward(xpReward: number): number {
+  return Math.max(1, Math.floor(xpReward / 2));
+}
+
+/**
+ * Client-side mirror of the streak-update branch inside
+ * complete_task() in supabase/phase3_game_logic.sql, for
+ * optimistic preview only:
+ *   - no prior last_active_date -> 1
+ *   - same UTC calendar day as last_active_date -> unchanged
+ *   - exactly one UTC calendar day later -> +1
+ *   - any bigger gap -> reset to 1
+ *
+ * Compares in UTC to match the server's
+ * `(now() at time zone 'utc')::date`. A mismatch here (e.g. right
+ * around midnight UTC) only ever lasts the brief moment until the
+ * server's response reconciles it with the real value.
+ */
+export function previewStreak(
+  lastActiveDate: string | null,
+  currentStreak: number
+): number {
+  if (!lastActiveDate) return 1;
+
+  const now = new Date();
+  const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+  const last = new Date(lastActiveDate);
+  const lastUtc = Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate());
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  const diffDays = Math.round((todayUtc - lastUtc) / dayMs);
+
+  if (diffDays === 0) return currentStreak;
+  if (diffDays === 1) return currentStreak + 1;
+  return 1;
+}

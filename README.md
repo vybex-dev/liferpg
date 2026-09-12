@@ -137,14 +137,14 @@ liferpg/
 In the interest of full transparency for judging, everything used to build
 this project:
 
-- **Claude (Anthropic)** was used throughout development — architecture,
-  component code, SQL, copy, accessibility hardening, and this README were
-  all produced with Claude's assistance across multiple sessions.
 - **Next.js**, **React**, and **TypeScript** — application framework and language.
 - **Supabase** — Postgres database, authentication, and Row Level Security.
 - **Tailwind CSS** — utility-first styling; no external component library.
 - **Framer Motion** — animation (the level-up sequence, optimistic UI transitions).
 - **lucide-react** — icon set.
 - **Vercel** — hosting and deployment.
+- **Claude (Anthropic)** was used throughout development — architecture,
+  component code, SQL, copy, accessibility hardening, and this README were
+  all produced with Claude's assistance across multiple sessions.
 
 No other AI tools, code generators, or third-party APIs were used.

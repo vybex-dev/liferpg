@@ -1,8 +1,16 @@
-# Life RPG — Phase 1 Project Structure
+# Life RPG — Project Structure (through Phase 2)
 
 ```
 liferpg/
 ├── app/
+│   ├── (auth)/
+│   │   ├── layout.tsx        # shared gradient/glow backdrop for auth pages
+│   │   ├── login/page.tsx
+│   │   └── signup/page.tsx
+│   ├── actions/
+│   │   └── auth.ts           # server actions: signup, login, logout
+│   ├── dashboard/
+│   │   └── page.tsx          # protected placeholder — verifies auth flow
 │   ├── layout.tsx
 │   ├── page.tsx
 │   ├── globals.css
@@ -12,7 +20,8 @@ liferpg/
 │       ├── client.ts
 │       └── server.ts
 ├── supabase/
-│   └── schema.sql
+│   ├── schema.sql                  # Phase 1: tables + RLS
+│   └── phase2_auth_trigger.sql     # Phase 2: updated signup trigger
 ├── .env.example
 ├── .env.local            (you create this, gitignored)
 ├── tailwind.config.ts
@@ -20,8 +29,8 @@ liferpg/
 ├── next.config.js
 ├── tsconfig.json
 ├── package.json
-└── middleware.ts
+└── middleware.ts          # session refresh + /dashboard route guard
 ```
 
-Nothing beyond this exists yet — no components/, no hooks/, no api routes.
-Those come in later phases. Phase 1 is scaffold + design tokens + DB schema only.
+Still nothing beyond this — no bento grid, no task/XP logic, no components/
+library yet. Those are later phases.

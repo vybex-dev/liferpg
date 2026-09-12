@@ -3,12 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Coins } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { MiniBarChart } from "@/components/bento/MiniBarChart";
+import { buildGoldSeries } from "@/lib/game/activity";
+import type { Task } from "@/lib/game/types";
 
-export function GoldCard({ gold }: { gold: number }) {
+export function GoldCard({ gold, tasks }: { gold: number; tasks: Task[] }) {
   const prefersReducedMotion = useReducedMotion();
   const prevGold = useRef(gold);
   const [delta, setDelta] = useState<number | null>(null);
   const clearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const series = buildGoldSeries(tasks);
+  const totalThisWeek = series.reduce((sum, d) => sum + d.value, 0);
 
   // Fires only on an actual increase (a purchase decreases gold and
   // shouldn't celebrate) — compares against the last render's value
@@ -40,6 +45,20 @@ export function GoldCard({ gold }: { gold: number }) {
           <Coins className="h-4 w-4 text-gold" strokeWidth={2} />
         </motion.div>
       </div>
+
+      {/* 7-day gold-earned activity — same fill-the-stretch purpose
+          as the streak card's chart, scaled to this week's actual
+          earnings from completed tasks. */}
+      <div className="my-3 min-h-[52px] flex-1">
+        <MiniBarChart
+          data={series}
+          barColorClass="bg-gradient-to-t from-gold-dim to-gold-bright"
+          emptyColorClass="bg-white/[0.06]"
+          glowColor="rgba(245,185,66,0.65)"
+          srSummary={`${totalThisWeek.toLocaleString()} gold earned in the last 7 days`}
+        />
+      </div>
+
       <div className="relative flex items-baseline gap-1.5">
         <motion.span
           key={gold}

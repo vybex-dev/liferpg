@@ -275,11 +275,11 @@ export function DashboardShell({
         </BentoHeroArea>
 
         <BentoStreakArea>
-          <StreakCard streakCount={profile.streak_count} />
+          <StreakCard streakCount={profile.streak_count} tasks={tasks} />
         </BentoStreakArea>
 
         <BentoGoldArea>
-          <GoldCard gold={profile.gold} />
+          <GoldCard gold={profile.gold} tasks={tasks} />
         </BentoGoldArea>
 
         <BentoAttrsArea>

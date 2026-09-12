@@ -76,6 +76,14 @@ one created):
    so it isn't empty on first load.
 5. `supabase/phase6_equip_items.sql` — adds equipped title/aura fields
    and the server-side item equip functionality.
+6. `supabase/phase7_security_hardening.sql` — locks down table
+   privileges so game state can only change through the RPCs above,
+   not through a direct API/table write. See **Security** below.
+   `schema.sql` (step 1) already creates a fresh project with this
+   hardened configuration, so this file is idempotent/a no-op on a
+   brand-new project — it only matters if your project's tables were
+   created before this step existed. Run it either way; it's safe to
+   re-run any number of times.
 
 Paste each file's contents into the SQL Editor and click **Run**, one at a
 time, in order.
@@ -121,6 +129,31 @@ liferpg/
 ├── middleware.ts                 # session refresh + /dashboard route guard
 └── tailwind.config.ts            # Neon Glass Bento design tokens
 ```
+
+## Security
+
+- **Row Level Security** on every table restricts every read to
+  `auth.uid()`'s own rows (or, for the shared `items` catalog, to any
+  signed-in user). There is no path for one user to read or write
+  another user's profile, attributes, tasks, or inventory.
+- **Game state is not client-authoritative.** `profiles`, `attributes`,
+  and `user_items` are SELECT-only for the `authenticated` role at the
+  database privilege level (not just RLS) — a direct API call, not
+  just the app's own UI, is rejected. XP, level, gold, streaks,
+  attribute progression, and inventory ownership are only ever
+  written by the SECURITY DEFINER RPCs in `phase3_game_logic.sql`
+  (`complete_task`, `purchase_item`) and `phase6_equip_items.sql`
+  (`equip_item`), each of which derives the current user from
+  `auth.uid()` and re-validates ownership/eligibility/cost server-side
+  — a client can request "complete this task" or "buy this item" but
+  can't supply the resulting XP, gold, level, or price.
+- **Tasks** keep normal client CRUD (create/edit/delete your own
+  task's title, category, and XP value), but `is_completed`,
+  `completed_at`, and `user_id` are excluded from the client's column
+  privileges on `INSERT`/`UPDATE`, so a task can only be marked
+  complete by calling `complete_task()`.
+- See `supabase/phase7_security_hardening.sql` for the full rationale
+  and the specific privileges this closes off.
 
 ## Accessibility notes
 

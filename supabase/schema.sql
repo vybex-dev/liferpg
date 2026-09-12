@@ -84,38 +84,29 @@ alter table public.user_items enable row level security;
 
 -- ---------------- profiles ----------------
 -- id IS the user's own auth uid on this table, so policies key off id.
+-- SELECT-only for clients: level/current_xp/gold/streak_count/
+-- last_active_date/equipped_title/equipped_aura are game state and
+-- are only ever written by the handle_new_user() trigger (below) or
+-- by the complete_task()/purchase_item()/equip_item() SECURITY
+-- DEFINER functions in phase3_game_logic.sql / phase6_equip_items.sql
+-- — never directly by an authenticated client. See the privilege
+-- hardening section at the end of this file for the enforcement.
 create policy "Profiles are viewable by owner"
   on public.profiles for select
   using (auth.uid() = id);
 
-create policy "Profiles are insertable by owner"
-  on public.profiles for insert
-  with check (auth.uid() = id);
-
-create policy "Profiles are updatable by owner"
-  on public.profiles for update
-  using (auth.uid() = id)
-  with check (auth.uid() = id);
-
 -- ---------------- attributes ----------------
+-- SELECT-only for clients — rows/levels/xp are only ever written
+-- from inside complete_task(). See privilege hardening below.
 create policy "Attributes are viewable by owner"
   on public.attributes for select
   using (auth.uid() = user_id);
 
-create policy "Attributes are insertable by owner"
-  on public.attributes for insert
-  with check (auth.uid() = user_id);
-
-create policy "Attributes are updatable by owner"
-  on public.attributes for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-create policy "Attributes are deletable by owner"
-  on public.attributes for delete
-  using (auth.uid() = user_id);
-
 -- ---------------- tasks ----------------
+-- Row-ownership is enforced here; WHICH COLUMNS a client can write
+-- is additionally narrowed by column-level GRANTs at the bottom of
+-- this file, so a direct API call can never set is_completed,
+-- completed_at, or user_id — only complete_task() can.
 create policy "Tasks are viewable by owner"
   on public.tasks for select
   using (auth.uid() = user_id);
@@ -140,13 +131,11 @@ create policy "Items are viewable by all authenticated users"
   using (auth.role() = 'authenticated');
 
 -- ---------------- user_items ----------------
+-- SELECT-only for clients — rows are only ever inserted from inside
+-- purchase_item(). See privilege hardening below.
 create policy "User items are viewable by owner"
   on public.user_items for select
   using (auth.uid() = user_id);
-
-create policy "User items are insertable by owner"
-  on public.user_items for insert
-  with check (auth.uid() = user_id);
 
 -- ============================================================
 -- Trigger: auto-create a profile row when a new auth user signs up
@@ -172,6 +161,46 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ============================================================
+-- Privilege hardening
+-- ------------------------------------------------------------
+-- Supabase grants ALL PRIVILEGES on public tables to `authenticated`
+-- by default — RLS policies above are what actually restrict
+-- access. Row-ownership policies alone aren't enough for game-state
+-- tables, since e.g. `auth.uid() = id with check (auth.uid() = id)`
+-- would let a user PATCH any column on their own row, including
+-- level/gold/xp. So in addition to only defining SELECT policies
+-- for profiles/attributes/user_items above, we explicitly revoke
+-- the write privileges those default grants would otherwise leave
+-- in place. (SECURITY DEFINER functions in phase3_game_logic.sql /
+-- phase6_equip_items.sql are owned by the table owner and are
+-- unaffected by revoking privileges from `authenticated`.)
+-- ============================================================
+
+revoke insert, update, delete on public.profiles from authenticated;
+revoke all on public.profiles from anon;
+grant select on public.profiles to authenticated;
+
+revoke insert, update, delete on public.attributes from authenticated;
+revoke all on public.attributes from anon;
+grant select on public.attributes to authenticated;
+
+revoke insert, update, delete on public.user_items from authenticated;
+revoke all on public.user_items from anon;
+grant select on public.user_items to authenticated;
+
+revoke insert, update, delete on public.items from authenticated;
+revoke all on public.items from anon;
+grant select on public.items to authenticated;
+
+-- tasks: full row-level CRUD stays available to the owner (policies
+-- above), but column-level grants stop a direct API write from ever
+-- touching is_completed / completed_at / user_id. A real task can
+-- only ever be marked complete via the complete_task() RPC.
+revoke insert, update on public.tasks from authenticated;
+grant insert (user_id, title, category, xp_reward) on public.tasks to authenticated;
+grant update (title, category, xp_reward) on public.tasks to authenticated;
 
 -- ============================================================
 -- Helpful indexes

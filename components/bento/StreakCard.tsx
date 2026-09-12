@@ -8,7 +8,7 @@ export function StreakCard({ streakCount }: { streakCount: number }) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div className="glass rounded-bento-lg p-5 h-full flex flex-col justify-between min-h-[100px] md:min-h-0">
+    <div className="glass glow-edge rounded-bento-lg p-5 h-full flex flex-col justify-between min-h-[100px] md:min-h-0">
       <div className="flex items-center justify-between">
         <span className="text-xs text-zinc-500">Streak</span>
         <motion.div

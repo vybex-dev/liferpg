@@ -114,7 +114,7 @@ export function ShopGrid({ initialGold, items, initialOwnedIds }: ShopGridProps)
                 whileHover={owned || !canAfford ? undefined : { y: -3 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className={`glass flex flex-col justify-between rounded-bento-md p-5 transition-[opacity,box-shadow] duration-200 ${
-                  !owned && canAfford ? "hover:shadow-glow-violet" : ""
+                  !owned && canAfford ? "glass-interactive glow-edge" : ""
                 } ${!owned && !canAfford ? "opacity-70" : ""}`}
               >
                 <div>

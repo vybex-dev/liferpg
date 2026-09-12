@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
+import { CustomCursor } from "@/components/ui/CustomCursor";
+import { ParticleField } from "@/components/ui/ParticleField";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -29,10 +31,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body>
+        <ParticleField />
         <a href="#main-content" className="sr-only sr-only-focusable">
           Skip to main content
         </a>
         {children}
+        <CustomCursor />
       </body>
     </html>
   );

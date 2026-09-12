@@ -216,3 +216,114 @@ h4,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(139, 92, 246, 0.5);
 }
+
+/* ==========================================================================
+   Custom cursor
+   ==========================================================================
+   Applied by CustomCursor.tsx only once it's confirmed a fine pointer
+   (mouse/trackpad) is present. Scoped to a class rather than a bare
+   `*` reset so a no-JS visitor — or one on a touch device — always
+   keeps the native system cursor.
+*/
+body.has-custom-cursor,
+body.has-custom-cursor * {
+  cursor: none;
+}
+
+.custom-cursor-ring {
+  background: rgba(139, 92, 246, 0.06);
+  border: 1.5px solid rgba(139, 92, 246, 0.55);
+  box-shadow:
+    0 0 18px 2px rgba(139, 92, 246, 0.35),
+    inset 0 0 14px rgba(139, 92, 246, 0.12);
+}
+
+.custom-cursor-ring[data-hover="true"] {
+  width: 3.25rem;
+  height: 3.25rem;
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.7);
+  box-shadow:
+    0 0 28px 4px rgba(34, 211, 238, 0.4),
+    inset 0 0 18px rgba(34, 211, 238, 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor-ring {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Neon + glassmorphism utilities
+   ========================================================================== */
+
+/* Crisp neon text glow for headings/wordmarks — layered shadow so it
+   reads as a light source rather than a flat drop shadow. */
+.neon-text {
+  color: #f4f4f5;
+  text-shadow:
+    0 0 6px rgba(139, 92, 246, 0.7),
+    0 0 18px rgba(139, 92, 246, 0.45),
+    0 0 40px rgba(34, 211, 238, 0.25);
+}
+
+/* Animated conic gradient ring that lives just outside a card's
+   border, revealed on hover/focus via mask so only a thin traveling
+   line shows rather than a solid glowing block. Pair with a
+   `relative` + `rounded-*` container. Purely additive: elements
+   keep their existing `.glass` styling underneath. */
+.glow-edge {
+  position: relative;
+  isolation: isolate;
+}
+
+.glow-edge::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--edge-angle, 0deg),
+    rgba(139, 92, 246, 0.9),
+    rgba(34, 211, 238, 0.9),
+    rgba(245, 185, 66, 0.7),
+    rgba(232, 121, 249, 0.85),
+    rgba(139, 92, 246, 0.9)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  animation: edge-spin 5s linear infinite;
+  animation-play-state: paused;
+}
+
+.glow-edge:hover::before,
+.glow-edge:focus-within::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+@keyframes edge-spin {
+  to {
+    --edge-angle: 360deg;
+  }
+}
+
+@property --edge-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-edge::before {
+    animation: none;
+  }
+}

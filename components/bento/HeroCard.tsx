@@ -11,7 +11,7 @@ export function HeroCard({ username, level, currentXp }: HeroCardProps) {
   const initial = username.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="glass rounded-bento-lg p-6 md:p-8 h-full flex flex-col justify-between min-h-[220px]">
+    <div className="glass glow-edge rounded-bento-lg p-6 md:p-8 h-full flex flex-col justify-between min-h-[220px]">
       <div className="flex items-center gap-4">
         <div
           aria-hidden

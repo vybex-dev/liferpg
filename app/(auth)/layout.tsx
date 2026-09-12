@@ -25,7 +25,7 @@ export default function AuthLayout({
           <div className="glass flex h-12 w-12 items-center justify-center rounded-bento-sm shadow-glow-violet">
             <Sparkles className="h-5 w-5 text-xp-cyan" strokeWidth={2} />
           </div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-zinc-100">
+          <h1 className="neon-text font-display text-2xl font-semibold tracking-tight">
             Life RPG
           </h1>
         </div>

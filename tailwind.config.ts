@@ -88,22 +88,37 @@ const config: Config = {
         ".glass": {
           backgroundColor: "rgba(255, 255, 255, 0.045)",
           backgroundImage:
-            "linear-gradient(155deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 60%)",
-          backdropFilter: "blur(20px) saturate(160%)",
-          WebkitBackdropFilter: "blur(20px) saturate(160%)",
+            "linear-gradient(155deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 60%)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
           border: "1px solid rgba(255, 255, 255, 0.08)",
           boxShadow:
-            "0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.06)",
+            "0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px rgba(139, 92, 246, 0.03)",
+          transition:
+            "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
         },
         ".glass-strong": {
           backgroundColor: "rgba(255, 255, 255, 0.075)",
           backgroundImage:
-            "linear-gradient(155deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 60%)",
-          backdropFilter: "blur(28px) saturate(170%)",
-          WebkitBackdropFilter: "blur(28px) saturate(170%)",
+            "linear-gradient(155deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 60%)",
+          backdropFilter: "blur(28px) saturate(190%)",
+          WebkitBackdropFilter: "blur(28px) saturate(190%)",
           border: "1px solid rgba(255, 255, 255, 0.14)",
           boxShadow:
-            "0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)",
+            "0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.09)",
+        },
+        // Drop onto any `.glass` surface to add a lift + neon glow on
+        // hover/focus — for cards that represent a clickable/actionable
+        // unit (shop items, task rows) rather than static readouts.
+        ".glass-interactive": {
+          transition:
+            "box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease",
+        },
+        ".glass-interactive:hover": {
+          borderColor: "rgba(139, 92, 246, 0.35)",
+          boxShadow:
+            "0 12px 40px 0 rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.12), 0 0 32px 0 rgba(139, 92, 246, 0.22), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)",
+          transform: "translateY(-2px)",
         },
       });
     },

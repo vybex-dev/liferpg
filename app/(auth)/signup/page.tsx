@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { UserPlus, AlertCircle } from "lucide-react";
 import { signup, type AuthActionState } from "@/app/actions/auth";
@@ -31,7 +30,7 @@ function SubmitButton() {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useActionState(signup, initialState);
+  const [state, formAction] = useFormState(signup, initialState);
 
   return (
     <div className="glass-strong rounded-bento-lg p-8">
